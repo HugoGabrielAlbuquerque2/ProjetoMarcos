@@ -767,7 +767,7 @@ class Aplication(funcs, Validadores):
         self.root = root
 
         self.tela()
-        self.Janela2()
+        #self.Janela2()
         self.frames_da_tela()
         self.validenu()
         self.Botoes()
@@ -1093,7 +1093,7 @@ class Aplication(funcs, Validadores):
         menubar.add_cascade(label='Opções', menu=filemenu)
         menubar.add_cascade(label='Relatórios', menu=filemenu2)
         filemenu.add_cascade(label="Sair", command=quit)
-        filemenu2.add_cascade(label="Fazer Loguin", command=self.Janela2)
+        # filemenu2.add_cascade(label="Fazer Loguin", command=self.Janela2)
         filemenu2.add_cascade(label="Ficha Cliente",
                               command=self.Gerarelatorio)
 
