@@ -14,10 +14,6 @@ from datetime import date, timedelta
 
 
 root = Tk()
-
-
-
-
 class Validadores():
     def Numeros(self, text):
         if text == "":
@@ -27,7 +23,6 @@ class Validadores():
         except ValueError:
             return False
         return 0 <= value <= 1000000000000000
-
 
 class funcs():
 
@@ -797,7 +792,11 @@ class Aplication(funcs, Validadores):
 
         self.frame3 = Frame(
             self.root, bd=4, highlightbackground="#BFAC95", highlightthickness=3)
-        self.frame3.place(relx=0.52, rely=0.01, relwidth=0.47, relheight=0.96)  
+        self.frame3.place(relx=0.52, rely=0.01, relwidth=0.47, relheight=0.50)  
+
+        self.frame4 = Frame(
+            self.root, bd=4, highlightbackground="#BFAC95", highlightthickness=3)
+        self.frame4.place(relx=0.52, rely=0.52, relwidth=0.47, relheight=0.50)  
 
     def Botoes(self):
         self.abas = ttk.Notebook(self.frame1)
@@ -863,63 +862,63 @@ class Aplication(funcs, Validadores):
         # Criação da area do orçamento
         self.Bt_Calcular = Button(self.frame3, text="Calcular", bd=3, bg="#F2360C", fg="#400D02",
                                   font=("verdana", 9, "bold"), command=self.orcamento)
-        self.Bt_Calcular.place(relx=0.66, rely=0.35,
-                               relheight=0.05, relwidth=0.15)
+        self.Bt_Calcular.place(relx=0.66, rely=0.80,
+                               relheight=0.15, relwidth=0.15)
 
         self.Bt_LimparOr = Button(self.frame3, text="Limpar", bd=3, bg="#F2360C", fg="#400D02",
                                   font=("verdana", 9, "bold"), command=self.LimpaOrçamento)
-        self.Bt_LimparOr.place(relx=0.46, rely=0.35,
-                               relheight=0.05, relwidth=0.15)
+        self.Bt_LimparOr.place(relx=0.46, rely=0.80,
+                               relheight=0.15, relwidth=0.15)
 
         self.Bt_Imprimir = Button(self.frame3, text="Imprimir", bd=3, bg="#F2360C", fg="#400D02",
                                   font=("verdana", 9, "bold"), command=self.Gerarelatorio)
-        self.Bt_Imprimir.place(relx=0.30, rely=0.35,
-                               relheight=0.05, relwidth=0.15)
+        self.Bt_Imprimir.place(relx=0.30, rely=0.80,
+                               relheight=0.15, relwidth=0.15)
 
         self.restentr = Button(self.frame3, text="Entrada", bd=3, bg="#F2360C", fg="#400D02",
                                font=("verdana", 9, "bold"), command=self.TotRest)
-        self.restentr.place(relx=0.82, rely=0.35,
-                            relheight=0.05, relwidth=0.15)
+        self.restentr.place(relx=0.82, rely=0.80,
+                            relheight=0.15, relwidth=0.15)
 
         # resposta
         self.resp = Label(self.frame3, text="00.00", bg="#595645",
                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp.place(relx=0.66, rely=0.06, relheight=0.03, relwidth=0.15)
+        self.resp.place(relx=0.66, rely=0.36, relheight=0.05, relwidth=0.15)
 
         self.resp1 = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp1.place(relx=0.66, rely=0.10, relheight=0.03, relwidth=0.15)
+        self.resp1.place(relx=0.66, rely=0.42, relheight=0.05, relwidth=0.15)
 
         self.resp2 = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp2.place(relx=0.66, rely=0.14, relheight=0.03, relwidth=0.15)
+        self.resp2.place(relx=0.66, rely=0.48, relheight=0.05, relwidth=0.15)
 
         self.resp3 = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp3.place(relx=0.66, rely=0.18, relheight=0.03, relwidth=0.15)
+        self.resp3.place(relx=0.66, rely=0.54, relheight=0.05, relwidth=0.15)
 
         self.resp4 = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp4.place(relx=0.66, rely=0.22, relheight=0.03, relwidth=0.15)
+        self.resp4.place(relx=0.66, rely=0.60, relheight=0.05, relwidth=0.15)
 
         self.resp5 = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp5.place(relx=0.66, rely=0.26, relheight=0.03, relwidth=0.15)
+        self.resp5.place(relx=0.66, rely=0.66, relheight=0.05, relwidth=0.15)
 
         self.respt = Label(self.frame3, text="00.00", bg="#595645",
                            fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.respt.place(relx=0.66, rely=0.30, relheight=0.03, relwidth=0.15)
+        self.respt.place(relx=0.66, rely=0.72, relheight=0.05, relwidth=0.15)
 
         self.resptEntrada = Label(self.frame3, text="R$00.00", bg="#595645",
                                   fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resptEntrada.place(relx=0.82, rely=0.30,
-                                relheight=0.03, relwidth=0.15)
+        self.resptEntrada.place(relx=0.82, rely=0.72,
+                                relheight=0.05, relwidth=0.15)
 
         # Topicos Labels
         self.Lb_Quanti = Label(self.frame3, text="Quantidade ",
                                bg="#595645", fg="white", bd=5, font=("verdana", 9, "bold"))
         self.Lb_Quanti.place(relx=0.50, rely=0.02,
-                             relheight=0.03, relwidth=0.15)
+                             relheight=0.05, relwidth=0.15)
 
         self.Lb_valor = Label(self.frame3, text="Valor ", bg="#595645",
                               fg="white", bd=5, font=("verdana", 9, "bold"))
@@ -1126,7 +1125,7 @@ class Aplication(funcs, Validadores):
         self.tit.place(relx=0.02,rely=0.15,relheight=0.02, relwidth=0.96)
 
         self.lb_Barra= Label(self.abaslo1,text="Login",foreground='#400D02',font=("Dotum", 20, "bold"),bd=3, bg="#BFAC95" )
-        self.lb_Barra.place(relx=0.01, rely=0.05,relheight=0.10,relwidth=0.40)
+        self.lb_Barra.place(relx=0.01, rely=0.30,relheight=0.10,relwidth=0.40)
 
         self.lb_Usuario = Label(self.abaslo1,text="Usuário *",foreground='#400D02',font=("Dotum", 14, "bold"),bd=3, bg="#BFAC95" )
         self.lb_Usuario.place(relx=0.01, rely=0.20,relheight=0.07,relwidth=0.35)
@@ -1148,7 +1147,7 @@ class Aplication(funcs, Validadores):
 
         #Botões cadastro
         self.lb_Barra2= Label(self.aba2,text="Cadastro",foreground='#400D02',font=("Dotum", 20, "bold"),bd=3, bg="#BFAC95" )
-        self.lb_Barra2.place(relx=0.001, rely=0.05,relheight=0.10,relwidth=0.60)
+        self.lb_Barra2.place(relx=0.001, rely=0.30,relheight=0.10,relwidth=0.60)
 
         self.tit1 = Label(self.aba2,bg='#400D02',bd=1)
         self.tit1.place(relx=0.02,rely=0.15,relheight=0.02, relwidth=0.96)
@@ -1180,6 +1179,23 @@ class Aplication(funcs, Validadores):
 
     def validenu(self):
         self.vdm2 = (self.root.register(self.Numeros), "%P")
+
+    def calendarop(self):
+        self.calendar = ttk.LabelFrame(self, text='Calendar')
+        self.calendar.grid(column=0, row=0, padx=8, pady=4)
+
+        ttk.Label(self.calendar, text="Year:").grid(column=1, row=0)
+        self.year_entry = ttk.Entry(self.calendar)
+        self.year_entry.grid(column=2, row=0)
+
+        ttk.Label(self.calendar, text="Month:").grid(column=3, row=0)
+        self.month_entry = ttk.Entry(self.calendar)
+        self.month_entry.grid(column=4, row=0)
+
+        ttk.Button(self.calendar, text='Show', command=self.show_calendar).grid(column=5, row=0)
+
+        self.calendar_display = ttk.LabelFrame(self, text='Calendar')
+        self.calendar_display.grid(column=0, row=1, padx=8, pady=4)
 
 
 Aplication()
