@@ -11,6 +11,7 @@ import os
 import webbrowser
 from datetime import datetime
 from datetime import date, timedelta
+from tkcalendar import Calendar, DateEntry
 
 
 root = Tk()
@@ -58,6 +59,12 @@ class funcs():
         self.malha4 = self.malha_entry4.get()
         self.malha5 = self.malha_entry5.get()
 
+        self.Entr = self.Entrada.get()
+        self.anotacoes =self.Notes.get()
+ 
+        self.Dat =self.Date.get()
+        self.cod2 =self.Cod2_Entry.get()
+
     def LimparTela(self):
         self.codigo_entry.delete(0, END)
         self.Nome_entry.delete(0, END)
@@ -86,6 +93,14 @@ class funcs():
         self.Quant_entry3.delete(0, END)
         self.Quant_entry4.delete(0, END)
         self.Quant_entry5.delete(0, END)
+        self.Date2.delete(0, END)
+        self.NomeVendedor.delete(0, END)
+        self.Entrada.delete(0, END)
+
+    def LimparTela2(self):   
+        self.Notes.delete(0, END)
+        self.Date.delete(0, END)
+        self.Cod2_Entry.delete(0, END)
 
     def conecta(self):
         self.conn = sqlite3.connect("Clientes.bg")
@@ -106,34 +121,79 @@ class funcs():
                 Nome_Cliente CHAR(40) NOT NULL,
                 telefone INTEGER(20) , Esp CHAR(40) , Esp1 CHAR(40) , Esp2 CHAR(40) , Esp3 CHAR(40) , Esp4 CHAR(40) , Esp5 CHAR(40) ,
                                     Malha CHAR(40) , Malha1 CHAR(40) , Malha2 CHAR(40) , Malha3 CHAR(40) , Malha4 CHAR(40) , Malha5 CHAR(40) ,
-                                    Valor CHAR(40) , Valor1 CHAR(40) , Valor2 CHAR(40) , Valor3 CHAR(40) , Valor4 CHAR(40) , valor5 CHAR(40) ,
-                                    Uni CHAR(40) , Uni1 CHAR(40) , Uni2 CHAR(40) , Uni3 CHAR(40) , Uni4 CHAR(40) , Uni5 CHAR(40)
+                                    Valor INT , Valor1 int  , Valor2 int  , Valor3 int  , Valor4 int  , valor5 int  ,
+                                    Uni int  , Uni1 int  , Uni2 int  , Uni3 int  , Uni4 int  , Uni5 int , Data1 CHAR(40) , Vendedor CHAR(40),
+                                    Entre INT
                                     ); """)
         self.conn.commit()
         print("Banco de dados criado")
         self.desconecta()
 
+    def TabelaTexto(self):
+        self.conecta()
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS texto(
+                cod1 INTEGER PRIMARY KEY,
+               Dat CHAR(40),
+               Anotacoes CHAR(800));""")
+        self.conn.commit()
+        self.desconecta()
+
+
     def add_cliente(self):
         self.variaveis()
         self.VariaveisPdf()
+        self.GerarData()
         self.conecta()
         self.cursor.execute("""
             INSERT INTO clientes (nome_cliente, Telefone, Esp, Esp1, Esp2, Esp3, Esp4, Esp5,
                                     Malha, Malha1, Malha2, Malha3, Malha4, Malha5,
                                     Valor, Valor1, Valor2, Valor3, Valor4, valor5,
-                                    Uni, Uni1, Uni2, Uni3, Uni4, Uni5
+                                    Uni, Uni1, Uni2, Uni3, Uni4, Uni5, Data1, Vendedor, Entre
                                     )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)
         """, (self.nome, self.telefone, self.Esp, self.Esp1, self.Esp2, self.Esp3, self.Esp4, self.Esp5,
               self.malha, self.malha1, self.malha2, self.malha3, self.malha4, self.malha5,
               self.Valor, self.Valor1, self.Valor2, self.Valor3, self.Valor4, self.Valor5,
-              self.quant, self.quant1, self.quant2, self.quant3, self.quant4, self.quant5
+              self.quant, self.quant1, self.quant2, self.quant3, self.quant4, self.quant5, self.Datent2, self.Vendedor, self.Entr
               ))
         self.conn.commit()
         self.desconecta()
         self.select()
         self.LimparTela()
 
+    def Add_texto(self):
+        self.conecta()
+        self.variaveis()
+        self.cursor.execute("""
+            INSERT INTO texto(Dat, Anotacoes) VALUES (?,?)""", (self.Dat, self.anotacoes))
+        self.conn.commit()
+        self.desconecta()
+        self.select2()
+        self.LimparTela2()
+            
+    def select2 (self):
+        self.listcli2.delete(*self.listcli2.get_children())
+        self.conecta()
+        lista = self.cursor.execute("""
+            SELECT cod1, Dat, Anotacoes
+            FROM texto
+            ORDER BY Dat ASC; 
+        """)
+        for i in lista:
+            self.listcli2.insert("", END, values=i)
+        self.desconecta()
+
+    def doubleclic2(self, event):
+        self.LimparTela2()
+        self.listcli2.selection()
+        for n in self.listcli2.selection():
+            col1,col2,col3 = self.listcli2.item(
+                n, 'values')
+            self.Cod2_Entry.insert(END, col1)
+            self.Date.insert(END, col2)
+            self.Notes.insert(END, col3)
+                      
     def select(self):
         self.listcli.delete(*self.listcli.get_children())
         self.conecta()
@@ -141,7 +201,7 @@ class funcs():
             SELECT cod, nome_cliente, telefone, Esp, Esp1, Esp2, Esp3, Esp4, Esp5,
             Malha, Malha1, Malha2, Malha3, Malha4, Malha5,
             Valor, Valor1, Valor2, Valor3, Valor4, valor5, 
-            Uni, Uni1, Uni2, Uni3, Uni4, Uni5 FROM clientes
+            Uni, Uni1, Uni2, Uni3, Uni4, Uni5, Data1, Vendedor, Entre FROM clientes
             ORDER BY nome_cliente ASC; 
         """)
         for i in lista:
@@ -152,7 +212,7 @@ class funcs():
         self.LimparTela()
         self.listcli.selection()
         for n in self.listcli.selection():
-            col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17, col18, col19, col20, col21, col22, col23, col24, col25, col26, col27 = self.listcli.item(
+            col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17, col18, col19, col20, col21, col22, col23, col24, col25, col26, col27, col28, col29,col30 = self.listcli.item(
                 n, 'values')
             self.codigo_entry.insert(END, col1)
             self.Nome_entry.insert(END, col2)
@@ -181,6 +241,9 @@ class funcs():
             self.Quant_entry3.insert(END, col25)
             self.Quant_entry4.insert(END, col26)
             self.Quant_entry5.insert(END, col27)
+            self.Date2.insert(END, col28)
+            self.NomeVendedor.insert(END, col29)
+            self.Entrada.insert(END,col30)
 
     def Deleta(self):
         self.variaveis()
@@ -194,18 +257,31 @@ class funcs():
         self.LimparTela()
         self.select()
 
+    def Deleta2(self):
+        self.variaveis()
+        self.conecta()
+        self.cursor.execute("""
+       DELETE FROM texto WHERE cod1 = ?
+       """, (self.cod2))
+        self.conn.commit()
+        self.desconecta()
+        self.LimparTela2()
+        self.select2()
+
     def alterar(self):
+        self.VariaveisPdf()
+        self.GerarData()
         self.variaveis()
         self.conecta()
         self.cursor.execute(""" UPDATE clientes SET nome_cliente
             = ?, telefone = ?, Esp = ?, Esp1 = ?, Esp2 = ?, Esp3 = ?, Esp4 = ?, Esp5 = ?,
             Malha = ?, Malha1 = ?, Malha2 = ?, Malha3 = ?, Malha4 = ?, Malha5 = ?,
             Valor = ?, Valor1 = ?, Valor2 = ?, Valor3 = ?, Valor4 = ?, valor5 = ?, 
-            Uni = ?, Uni1 = ?, Uni2 = ?, Uni3 = ?, Uni4 = ?, Uni5 = ? WHERE cod = ?
+            Uni = ?, Uni1 = ?, Uni2 = ?, Uni3 = ?, Uni4 = ?, Uni5 =?, Data1 = ?, Vendedor = ?, Entre = ? WHERE cod = ?
             """, (self.nome, self.telefone, self.Esp, self.Esp1, self.Esp2, self.Esp3, self.Esp4, self.Esp5,
                   self.malha, self.malha1, self.malha2, self.malha3, self.malha4, self.malha5,
                   self.Valor, self.Valor1, self.Valor2, self.Valor3, self.Valor4, self.Valor5,
-                  self.quant, self.quant1, self.quant2, self.quant3, self.quant4, self.quant5, self.codigo))
+                  self.quant, self.quant1, self.quant2, self.quant3, self.quant4, self.quant5,self.Datent2, self.Vendedor,self.Entr, self.codigo))
 
         self.conn.commit()
         self.desconecta()
@@ -219,7 +295,10 @@ class funcs():
         self.Nome_entry.insert(END, '%')
         nome = self.Nome_entry.get()
         self.cursor.execute("""
-        SELECT cod, nome_cliente, Telefone FROM clientes
+        SELECT cod, nome_cliente, Telefone, Esp, Esp1, Esp2, Esp3, Esp4, Esp5,
+                                    Malha, Malha1, Malha2, Malha3, Malha4, Malha5,
+                                    Valor, Valor1, Valor2, Valor3, Valor4, valor5,
+                                    Uni, Uni1, Uni2, Uni3, Uni4, Uni5, Data1, Vendedor, Entre FROM clientes
         WHERE nome_cliente LIKE '%s' ORDER BY nome_cliente ASC
         """ % nome)
         buscanomecli = self.cursor.fetchall()
@@ -424,10 +503,29 @@ class funcs():
         self.too4 = str(self.tot4)
         self.too5 = str(self.tot5)
         self.too6 = str(self.Total)
+        self.Vendedor = self.NomeVendedor.get()
 
     def printCliente(self):
 
         webbrowser.open("Orçamento.pdf")
+
+    def GerarData(self):
+        # Data de hoje
+        self.Data = self.Date2.get()
+        self.Data1 = self.Data
+        self.data_e_hora_atuais = datetime.now()
+        self.data_e_hora_em_texto = self.data_e_hora_atuais.strftime(
+                "%d/%m/%Y")
+        if self.Data1 == "":
+            self.today_date = date.today()
+            self.td = timedelta(10)
+            self.Daten = self.td+self.today_date
+            self.Datent = self.Daten.strftime(
+                "%d/%m/%Y")
+            self.Datent2 = self.Datent
+        else:
+            self.Datent = str(self.Date2.get())
+            self.Datent2 = self.Datent
 
     def Gerarelatorio(self):
         # Variaveis
@@ -435,17 +533,7 @@ class funcs():
         self.TotRest()
         self.VariaveisPdf()
         self.variaveis()
-        # Data de hoje
-        self.data_e_hora_atuais = datetime.now()
-        self.data_e_hora_em_texto = self.data_e_hora_atuais.strftime(
-            "%d/%m/%Y")
-
-        self.today_date = date.today()
-        self.td = timedelta(10)
-        self.Daten = self.td+self.today_date
-
-        self.Datent = self.Daten.strftime(
-            "%d/%m/%Y")
+        self.GerarData()
 
         self.c = canvas.Canvas("Orçamento.pdf", pagesize=A4)
         # Linhas verticais1
@@ -503,9 +591,9 @@ class funcs():
 
         self.c.setFont("Helvetica-Bold", 17)
         self.c.drawString(40, 450, "Cliente")
-        self.c.drawString(160, 450, "Responsável")
+        self.c.drawString(160, 450, self.Vendedor)
         self.c.drawString(40, 150, "Cliente")
-        self.c.drawString(160, 150, "Responsável")
+        self.c.drawString(160, 150, self.Vendedor)
         self.c.drawString(490, 638, "Valor")
         self.c.setFont("Helvetica-Bold", 15)
         self.c.drawString(417, 477, "Entrada ")
@@ -755,7 +843,37 @@ class funcs():
         self.VarieaveisLo()
         self.Conect()
 
-        
+    def Calendario(self):
+        self.Calendario1 = Calendar(self.frame4, fg="gray",bg="Blue",
+            font=("verdana", '9', 'bold'), locale='pt_br')
+        self.Calendario1.place(relx=0.15,rely=0.1)
+        self.calDataInit = Button(self.frame4,text="Inserir Data",bd=3, bg="#F2360C", fg="#400D02",
+                                font=("verdana", 9, "bold"),
+            command= self.printf_cal)
+        self.calDataInit.place(relx=0.30,rely=0.55,relheight=0.10,relwidth=0.15)
+
+    def printf_cal(self):
+        DataIn = self.Calendario1.get_date()
+        self.Calendario1.destroy()
+        self.Date.delete(0, END)
+        self.Date.insert(END,DataIn)
+        self.calDataInit.destroy()
+
+    def Calendario2(self):
+        self.Calendario2 = Calendar(self.frame3, fg="gray",bg="Blue",
+            font=("verdana", '9', 'bold'), locale='pt_br')
+        self.Calendario2.place(relx=0.15,rely=0.1)
+        self.calDataInit = Button(self.frame3,text="Inserir Data",bd=3, bg="#F2360C", fg="#400D02",
+                                font=("verdana", 9, "bold"),
+            command= self.printf_cal2)
+        self.calDataInit.place(relx=0.45,rely=0.53,relheight=0.10,relwidth=0.15)
+
+    def printf_cal2(self):
+        DataIn = self.Calendario2.get_date()
+        self.Calendario2.destroy()
+        self.Date2.delete(0, END)
+        self.Date2.insert(END,DataIn)
+        self.calDataInit.destroy()    
 
 class Aplication(funcs, Validadores):
     def __init__(self):
@@ -768,8 +886,11 @@ class Aplication(funcs, Validadores):
         self.Botoes()
         self.orcamento()
         self.list()
+        self.calendarop()
         self.montatabela()
+        self.TabelaTexto()
         self.select()
+        self.select2()
         self.menus()
         root.mainloop()
 
@@ -796,7 +917,7 @@ class Aplication(funcs, Validadores):
 
         self.frame4 = Frame(
             self.root, bd=4, highlightbackground="#BFAC95", highlightthickness=3)
-        self.frame4.place(relx=0.52, rely=0.52, relwidth=0.47, relheight=0.50)  
+        self.frame4.place(relx=0.52, rely=0.52, relwidth=0.47, relheight=0.45)  
 
     def Botoes(self):
         self.abas = ttk.Notebook(self.frame1)
@@ -836,9 +957,9 @@ class Aplication(funcs, Validadores):
                              relwidth=0.1, relheight=0.15)
 
         # criacação label
-        self.Lb_codigo = Label(self.aba1, text="Código",
+        self.Lb_codigo = Label(self.aba1, text="Código do Pedido",
                                bg="#595645", fg="white", bd=5)
-        self.Lb_codigo.place(relx=0.001, rely=0.01, relwidth=0.1)
+        self.Lb_codigo.place(relx=0.001, rely=0.01, relwidth=0.20)
 
         self.codigo_entry = Entry(self.aba1, validate="key", validatecommand=self.vdm2,
                                   bd=3, bg="#BFAC95")
@@ -882,185 +1003,210 @@ class Aplication(funcs, Validadores):
 
         # resposta
         self.resp = Label(self.frame3, text="00.00", bg="#595645",
-                          fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp.place(relx=0.66, rely=0.36, relheight=0.05, relwidth=0.15)
+                          fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp.place(relx=0.66, rely=0.10, relheight=0.08, relwidth=0.15)
 
         self.resp1 = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp1.place(relx=0.66, rely=0.42, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp1.place(relx=0.66, rely=0.20, relheight=0.08, relwidth=0.15)
 
         self.resp2 = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp2.place(relx=0.66, rely=0.48, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp2.place(relx=0.66, rely=0.30, relheight=0.08, relwidth=0.15)
 
         self.resp3 = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp3.place(relx=0.66, rely=0.54, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp3.place(relx=0.66, rely=0.40, relheight=0.08, relwidth=0.15)
 
         self.resp4 = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp4.place(relx=0.66, rely=0.60, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp4.place(relx=0.66, rely=0.50, relheight=0.08, relwidth=0.15)
 
         self.resp5 = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resp5.place(relx=0.66, rely=0.66, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.resp5.place(relx=0.66, rely=0.60, relheight=0.08, relwidth=0.15)
 
         self.respt = Label(self.frame3, text="00.00", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.respt.place(relx=0.66, rely=0.72, relheight=0.05, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.respt.place(relx=0.66, rely=0.70, relheight=0.08, relwidth=0.15)
 
         self.resptEntrada = Label(self.frame3, text="R$00.00", bg="#595645",
-                                  fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.resptEntrada.place(relx=0.82, rely=0.72,
-                                relheight=0.05, relwidth=0.15)
+                                  fg="white", bd=5, font=("verdana",12, "bold"))
+        self.resptEntrada.place(relx=0.82, rely=0.70,
+                                relheight=0.08, relwidth=0.15)
 
         # Topicos Labels
         self.Lb_Quanti = Label(self.frame3, text="Quantidade ",
-                               bg="#595645", fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Lb_Quanti.place(relx=0.50, rely=0.02,
-                             relheight=0.05, relwidth=0.15)
+                               bg="#595645", fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Lb_Quanti.place(relx=0.50, rely=0.001,
+                             relheight=0.08, relwidth=0.15)
 
         self.Lb_valor = Label(self.frame3, text="Valor ", bg="#595645",
-                              fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Lb_valor.place(relx=0.34, rely=0.02,
-                            relheight=0.03, relwidth=0.15)
+                              fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Lb_valor.place(relx=0.34, rely=0.001,
+                            relheight=0.08, relwidth=0.15)
 
         self.Lb_espec = Label(self.frame3, text="Especificação",
-                              bg="#595645", fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Lb_espec.place(relx=0.02, rely=0.02,
-                            relheight=0.03, relwidth=0.15)
+                              bg="#595645", fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Lb_espec.place(relx=0.02, rely=0.001,
+                            relheight=0.08, relwidth=0.15)
 
         self.Lb_Malha = Label(self.frame3, text="Malha", bg="#595645",
-                              fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Lb_Malha.place(relx=0.18, rely=0.02,
-                            relheight=0.03, relwidth=0.15)
+                              fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Lb_Malha.place(relx=0.18, rely=0.001,
+                            relheight=0.08, relwidth=0.15)
 
         self.Lb_Total = Label(self.frame3, text="Total", bg="#595645",
-                              fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Lb_Total.place(relx=0.66, rely=0.02,
-                            relheight=0.03, relwidth=0.15)
+                              fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Lb_Total.place(relx=0.66, rely=0.001,
+                            relheight=0.08, relwidth=0.15)
 
         # especificações Entrys
         self.Esp_entry = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry.place(relx=0.02, rely=0.06,
-                             relheight=0.03, relwidth=0.15)
-
+        self.Esp_entry.place(relx=0.02, rely=0.10,
+                             relheight=0.08, relwidth=0.15)
+        
         self.Esp_entry1 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry1.place(relx=0.02, rely=0.10,
-                              relheight=0.03, relwidth=0.15)
+        self.Esp_entry1.place(relx=0.02, rely=0.20,
+                              relheight=0.08, relwidth=0.15)
 
         self.Esp_entry2 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry2.place(relx=0.02, rely=0.14,
-                              relheight=0.03, relwidth=0.15)
+        self.Esp_entry2.place(relx=0.02, rely=0.30,
+                              relheight=0.08, relwidth=0.15)
 
         self.Esp_entry3 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry3.place(relx=0.02, rely=0.18,
-                              relheight=0.03, relwidth=0.15)
+        self.Esp_entry3.place(relx=0.02, rely=0.40,
+                              relheight=0.08, relwidth=0.15)
 
         self.Esp_entry4 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry4.place(relx=0.02, rely=0.22,
-                              relheight=0.03, relwidth=0.15)
+        self.Esp_entry4.place(relx=0.02, rely=0.50,
+                              relheight=0.08, relwidth=0.15)
 
         self.Esp_entry5 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.Esp_entry5.place(relx=0.02, rely=0.26,
-                              relheight=0.03, relwidth=0.15)
+        self.Esp_entry5.place(relx=0.02, rely=0.60,
+                              relheight=0.08, relwidth=0.15)
 
         # Valor Entrys
         self.Valor_entry = Entry(
             self.frame3, bd=2, validate="key", validatecommand=self.vdm2, bg="#BFAC95")
-        self.Valor_entry.place(relx=0.34, rely=0.06,
-                               relheight=0.03, relwidth=0.15)
+        self.Valor_entry.place(relx=0.34, rely=0.10,
+                               relheight=0.08, relwidth=0.15)
 
         self.Valor_entry1 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Valor_entry1.place(relx=0.34, rely=0.10,
-                                relheight=0.03, relwidth=0.15)
+        self.Valor_entry1.place(relx=0.34, rely=0.20,
+                                relheight=0.08, relwidth=0.15)
 
         self.Valor_entry2 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Valor_entry2.place(relx=0.34, rely=0.14,
-                                relheight=0.03, relwidth=0.15)
+        self.Valor_entry2.place(relx=0.34, rely=0.30,
+                                relheight=0.08, relwidth=0.15)
 
         self.Valor_entry3 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Valor_entry3.place(relx=0.34, rely=0.18,
-                                relheight=0.03, relwidth=0.15)
+        self.Valor_entry3.place(relx=0.34, rely=0.40,
+                                relheight=0.08, relwidth=0.15)
 
         self.Valor_entry4 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Valor_entry4.place(relx=0.34, rely=0.22,
-                                relheight=0.03, relwidth=0.15)
+        self.Valor_entry4.place(relx=0.34, rely=0.50,
+                                relheight=0.08, relwidth=0.15)
 
         self.Valor_entry5 = Entry(
             self.frame3, bd=2, validate="key", validatecommand=self.vdm2, bg="#BFAC95")
-        self.Valor_entry5.place(relx=0.34, rely=0.26,
-                                relheight=0.03, relwidth=0.15)
+        self.Valor_entry5.place(relx=0.34, rely=0.60,
+                                relheight=0.08, relwidth=0.15)
 
         self.Entrada = Entry(self.frame3, bd=2, validate="key",
                              validatecommand=self.vdm2, bg="#BFAC95")
-        self.Entrada.place(relx=0.82, rely=0.26,
-                           relheight=0.03, relwidth=0.15)
+        self.Entrada.place(relx=0.82, rely=0.60,
+                           relheight=0.08, relwidth=0.15)
 
         self.Entra = Label(self.frame3, text="Entrada", bg="#595645",
-                           fg="white", bd=5, font=("verdana", 9, "bold"))
-        self.Entra.place(relx=0.82, rely=0.22,
-                         relheight=0.03, relwidth=0.15)
+                           fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Entra.place(relx=0.82, rely=0.50,
+                         relheight=0.08, relwidth=0.15)
 
         # Quantidade entrys
         self.Quant_entry = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Quant_entry.place(relx=0.50, rely=0.06,
-                               relheight=0.03, relwidth=0.15)
+        self.Quant_entry.place(relx=0.50, rely=0.10,
+                               relheight=0.08, relwidth=0.15)
 
         self.Quant_entry1 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Quant_entry1.place(relx=0.50, rely=0.10,
-                                relheight=0.03, relwidth=0.15)
+        self.Quant_entry1.place(relx=0.50, rely=0.20,
+                                relheight=0.08, relwidth=0.15)
 
         self.Quant_entry2 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Quant_entry2.place(relx=0.50, rely=0.14,
-                                relheight=0.03, relwidth=0.15)
+        self.Quant_entry2.place(relx=0.50, rely=0.30,
+                                relheight=0.08, relwidth=0.15)
 
         self.Quant_entry3 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Quant_entry3.place(relx=0.50, rely=0.18,
-                                relheight=0.03, relwidth=0.15)
+        self.Quant_entry3.place(relx=0.50, rely=0.40,
+                                relheight=0.08, relwidth=0.15)
 
         self.Quant_entry4 = Entry(
             self.frame3, bd=2, validate="key", validatecommand=self.vdm2, bg="#BFAC95")
-        self.Quant_entry4.place(relx=0.50, rely=0.22,
-                                relheight=0.03, relwidth=0.15)
+        self.Quant_entry4.place(relx=0.50, rely=0.50,
+                                relheight=0.08, relwidth=0.15)
 
         self.Quant_entry5 = Entry(
             self.frame3, validate="key", validatecommand=self.vdm2, bd=2, bg="#BFAC95")
-        self.Quant_entry5.place(relx=0.50, rely=0.26,
-                                relheight=0.03, relwidth=0.15)
+        self.Quant_entry5.place(relx=0.50, rely=0.60,
+                                relheight=0.08, relwidth=0.15)
 
         # Malha Entrys
         self.malha_entry = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry.place(relx=0.18, rely=0.06,
-                               relheight=0.03, relwidth=0.15)
+        self.malha_entry.place(relx=0.18, rely=0.10,
+                               relheight=0.08, relwidth=0.15)
 
         self.malha_entry1 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry1.place(relx=0.18, rely=0.10,
-                                relheight=0.03, relwidth=0.15)
+        self.malha_entry1.place(relx=0.18, rely=0.20,
+                                relheight=0.08, relwidth=0.15)
 
         self.malha_entry2 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry2.place(relx=0.18, rely=0.14,
-                                relheight=0.03, relwidth=0.15)
+        self.malha_entry2.place(relx=0.18, rely=0.30,
+                                relheight=0.08, relwidth=0.15)
 
         self.malha_entry3 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry3.place(relx=0.18, rely=0.18,
-                                relheight=0.03, relwidth=0.15)
+        self.malha_entry3.place(relx=0.18, rely=0.40,
+                                relheight=0.08, relwidth=0.15)
 
         self.malha_entry4 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry4.place(relx=0.18, rely=0.22,
-                                relheight=0.03, relwidth=0.15)
+        self.malha_entry4.place(relx=0.18, rely=0.50,
+                                relheight=0.08, relwidth=0.15)
 
         self.malha_entry5 = Entry(self.frame3, bd=2, bg="#BFAC95")
-        self.malha_entry5.place(relx=0.18, rely=0.26,
-                                relheight=0.03, relwidth=0.15)
+        self.malha_entry5.place(relx=0.18, rely=0.60,
+                                relheight=0.08, relwidth=0.15)
+
+        self.Prazo = Label(self.frame3, text="Prazo de Entrega", bg="#595645",
+                           fg="white", bd=5, font=("verdana", 10, "bold"))
+        self.Prazo.place(relx=0.02, rely=0.70,
+                         relheight=0.08, relwidth=0.20)
+
+        self.PrazoEntrega = Button(self.frame3,text="Data", bd=3, bg="#F2360C", fg="#400D02",
+                                font=("verdana", 12, "bold"), command=self.Calendario2)
+        self.PrazoEntrega.place(relx=0.02, rely=0.80,
+                                relheight=0.08, relwidth=0.20)
+
+        self.Date2= Entry(self.frame3, bd=2, bg="#BFAC95")
+        self.Date2.place(relx=0.02, rely=0.90, relheight=0.08, relwidth=0.20)
+
+        self.Vendedor = Label(self.frame3, text="Vededor", bg="#595645",
+                           fg="white", bd=5, font=("verdana", 12, "bold"))
+        self.Vendedor.place(relx=0.82, rely=0.001, relheight=0.08, relwidth=0.15)
+
+        self.NomeVendedor = Entry(self.frame3, bd=2, bg="#BFAC95")
+        self.NomeVendedor.place(relx=0.82, rely=0.10, relheight=0.08, relwidth=0.15)
+
+        self.In_text = Button(self.frame4,text="Inserir Anotação", bd=3, bg="#F2360C", fg="white",
+                                font=("verdana", 12, "bold"),command=self.Add_texto)
+        self.In_text.place(relx=0.60, rely=0.10,
+                                relheight=0.05, relwidth=0.30)
 
     def list(self):
         self.listcli = ttk.Treeview(
@@ -1181,21 +1327,52 @@ class Aplication(funcs, Validadores):
         self.vdm2 = (self.root.register(self.Numeros), "%P")
 
     def calendarop(self):
-        self.calendar = ttk.LabelFrame(self, text='Calendar')
-        self.calendar.grid(column=0, row=0, padx=8, pady=4)
+        self.bt_date = Button(self.frame4, text="Data", bd=3, bg="#F2360C", fg="white",
+                                font=("verdana", 12, "bold"), command=self.Calendario)
+        self.bt_date.place(relx=0.02, rely=0.01,
+                             relwidth=0.10, relheight=0.08) 
 
-        ttk.Label(self.calendar, text="Year:").grid(column=1, row=0)
-        self.year_entry = ttk.Entry(self.calendar)
-        self.year_entry.grid(column=2, row=0)
+        self.Limpa2= Button(self.frame4, text="Limpa Tela", bd=3, bg="#F2360C", fg="white",
+                                font=("verdana", 10, "bold"), command=self.LimparTela2)
+        self.Limpa2.place(relx=0.15, rely=0.08,
+                             relwidth=0.15, relheight=0.08) 
 
-        ttk.Label(self.calendar, text="Month:").grid(column=3, row=0)
-        self.month_entry = ttk.Entry(self.calendar)
-        self.month_entry.grid(column=4, row=0)
+        self.Apaga= Button(self.frame4, text="Apagar", bd=3, bg="#F2360C", fg="white",
+                                font=("verdana", 10, "bold"), command=self.Deleta2)
+        self.Apaga.place(relx=0.30, rely=0.08,
+                             relwidth=0.15, relheight=0.08) 
 
-        ttk.Button(self.calendar, text='Show', command=self.show_calendar).grid(column=5, row=0)
+        self.Date = Entry(self.frame4, bd=2, bg="#BFAC95")
+        self.Date.place(relx=0.02, rely=0.12, relwidth=0.10)
 
-        self.calendar_display = ttk.LabelFrame(self, text='Calendar')
-        self.calendar_display.grid(column=0, row=1, padx=8, pady=4)
+        self.Cod2_Entry = Entry(self.frame4, bd=2, bg="#BFAC95")
+        self.Cod2_Entry.place(relx=0.14, rely=0.02, relwidth=0.05)
+
+
+        self.Notes = Entry(self.frame4, bd=2, bg="#BFAC95")
+        self.Notes.place(relx=0.20, rely=0.02, relwidth=0.80,relheight=0.05)
+
+        self.listcli2 = ttk.Treeview(
+        self.frame4, height=3, column=("col1", "col2","col3"))
+        self.listcli2.heading("#0", text="")
+        self.listcli2.heading("#1", text="cod")
+        self.listcli2.heading("#2", text="Data")
+        self.listcli2.heading("#3", text="Titulo")
+        
+        self.listcli2.column("#0", width=0)
+        self.listcli2.column("#1", width=10)
+        self.listcli2.column("#2", width=80)
+        self.listcli2.column("#3", width=600)
+
+        self.listcli2.place(relx=0.01, rely=0.18, relwidth=0.95, relheight=0.70)
+
+        self.barra = Scrollbar(self.frame4, orient="vertical")
+        self.listcli2.configure(yscroll=self.barra.set)
+        self.barra.place(relx=0.96, rely=0.01, relwidth=0.04, relheight=0.85)
+        self.listcli2.bind('<Double-1>', self.doubleclic2)
+
+
+
 
 
 Aplication()
